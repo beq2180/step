@@ -1,0 +1,37 @@
+name: Build Java App
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Build with javac
+      run: |
+        mkdir -p out
+        javac -d out OpenSteamApp.java
+
+    - name: Package into JAR
+      run: |
+        echo "Main-Class: OpenSteamApp" > manifest.txt
+        jar cvfm open-steam-app.jar manifest.txt -C out .
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: open-steam-app-jar
+        path: open-steam-app.jar
